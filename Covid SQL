@@ -1,7 +1,3 @@
--- Este es un proyecto para mi porftolio personal. Para hacerlo usé una base de datos de Covid (https://ourworldindata.org/covid-deaths)
--- En principio hice todas las queries que me parecieron interesantes, y luego las más apropiadas para lograr las visualizaciones que quería en Tableau:
--- https://public.tableau.com/app/profile/diego.alejandro.saint.denis
-
 
 SELECT * 
 FROM projectalex.muertes_por_covid
