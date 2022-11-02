@@ -299,14 +299,38 @@ GROUP BY `Country Name`
 ORDER BY Surface_with_forest desc
 LIMIT 20;
 
--- Now let's check the global temperature data
 
+
+-- Now let's check the global temperature data
 select * 
 from globaltemp1;
 
 -- The "Value" column is the temperature change with respect to a baseline climatology, corresponding to the period 1951–1980
 SELECT Area, Months, Year, Value 
 FROM globaltemp1
-ORDER BY Area, Year, Months;
+ORDER BY Area, Year;
+
+-- Temperature change by location and year
+SELECT Area, Value, Months, year 
+FROM globaltemp1
+WHERE Months = 'Meteorological year'
+ORDER BY Area, Year;
+
+-- Average (1961-2020) temperature rise compared to baseline climatology. Ordered by temperature difference.
+SELECT Area, AVG(Value) as Average_temperature_diff 
+FROM globaltemp1
+WHERE Months = 'Meteorological year'
+GROUP BY Area
+ORDER BY Average_temperature_diff desc;
+
+-- Average (1961-2021) temperature change in Argentina compared to baselie climatology
+SELECT Area, avg(Value) as Avg_local_temperature_diff
+FROM globaltemp1
+WHERE Area = 'Argentina' AND Months = 'Meteorological Year';
+
+SELECT avg(Value)
+FROM globaltemp1
+WHERE Months = 'Meteorological year'
+-- ORDER BY Area, Year;
 
 
