@@ -75,7 +75,7 @@ ORDER BY total_suicides_per_year desc;
 SELECT *
 FROM suicide_project.population;
 
--- Average suicides per country
+-- Average suicides per country.
 SELECT suicide_stats.country_name,
        SUM(suicide_stats.suicides_no) total_suicides_per_country,
        population.avg avg_population,  
