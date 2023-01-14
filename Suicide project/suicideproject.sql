@@ -1,12 +1,18 @@
+-- This project is commented on each of the queries made, so it is a bit more clear for you to read.
+-- If you have any doubts, comments, suggestions or questions please contact me:
+-- diego.saintdenis@gmail.com
+
 SELECT *
-FROM suicide_project.suicide_stats;
+FROM suicide_project.suicide_stats
+group by age
+;
 
 -- First I need to change the name of some columns
 ALTER TABLE suicide_project.suicide_stats 
-RENAME COLUMN ï»¿country TO country;
+RENAME COLUMN country TO country_name;
 
  -- There we go. Let's see if it worked.
-SELECT country
+SELECT country_name
 FROM suicide_project.suicide_stats;
 
 -- Perfect! Now...
@@ -20,20 +26,13 @@ FROM suicide_project.suicide_stats
 GROUP BY sex;
 
 -- Now i would like to know the countries with the most suicides.
-SELECT country,
+SELECT country_name,
        SUM(suicides_no) total_suicides_per_country
 FROM suicide_project.suicide_stats
-GROUP BY country
+GROUP BY country_name
 ORDER BY total_suicides_per_country desc;
 
--- Interesting... but let's divided by the population to see the highest averages.
-SELECT country,
-       SUM(suicides_no) total_suicides_per_country,
-       SUM(population),
-       SUM(suicides_no)/SUM(population) avg_suicides_per_country
-FROM suicide_project.suicide_stats
-GROUP BY country
-ORDER BY avg_suicides_per_country desc;
+
 
 -- I would now like to know the age-range with in which suicide is most common.
 SELECT age, 
@@ -49,7 +48,7 @@ FROM suicide_project.suicide_stats
 GROUP BY year
 ORDER BY total_suicides_per_year desc;
 
--- Let's what generations show the highest counts of suicides.
+-- Let's see what generations show the highest counts of suicides.
 SELECT generation,
 	   SUM(suicides_no) total_suicides_per_generation 
 FROM suicide_project.suicide_stats
@@ -57,40 +56,58 @@ GROUP BY generation
 ORDER BY total_suicides_per_generation desc;
 
 -- One of the elements that I found really interesting of this dataset is the economic factor. Let's dig a little into that.
-SELECT country,
+SELECT country_name,
 	   SUM(suicides_no) total_suicides_per_country,
        AVG(gdp_per_capita)
 FROM suicide_project.suicide_stats
-GROUP BY country
+GROUP BY country_name
 ORDER BY total_suicides_per_country desc;
 
 -- Years in which the most suicides where commited in Argentina. 
 SELECT year,	   
 	   SUM(suicides_no) total_suicides_per_year       
 FROM suicide_project.suicide_stats
-WHERE country = 'Argentina'
+WHERE country_name = 'Argentina'
 GROUP BY year
 ORDER BY total_suicides_per_year desc;
 
--- Age group with the most avg suicides. 75+ years old, followed by 55-74 years old.
+-- Interesting... but let's join with the population table.
+SELECT *
+FROM suicide_project.population;
+
+-- Average suicides per country
+SELECT suicide_stats.country_name,
+       SUM(suicide_stats.suicides_no) total_suicides_per_country,
+       population.avg avg_population,  
+       SUM(suicide_stats.suicides_no)/population.avg as avg_suicides_per_country
+FROM suicide_project.suicide_stats
+JOIN population ON suicide_stats.country_name = population.country_name
+GROUP BY country_name
+ORDER BY avg_suicides_per_country desc;
+
+
+-- Age group with the most avg suicides.
 SELECT age,
 	   SUM(suicides_no) total_suicides_per_age_range,
-       AVG(population),
-       SUM(suicides_no)/population avg_suicides
+       SUM(population),
+       SUM(suicide_stats.suicides_no)/SUM(population) *100 percent_suicides_per_age_range
 FROM suicide_project.suicide_stats
-WHERE country = 'Argentina'
 GROUP BY age
-ORDER BY avg_suicides desc;
+ORDER BY percent_suicides_per_age_range desc;
+
 
 -- Generation with the most avg suicides. G.I. Generation (1901-1927)
 SELECT generation,
 	   SUM(suicides_no) total_suicides_per_generation,
-       AVG(population),
-       SUM(suicides_no)/population avg_suicides
+       SUM(population),
+       SUM(suicides_no)/SUM(population) *100 percent_suicides_per_generation
 FROM suicide_project.suicide_stats
-WHERE country = 'Argentina'
 GROUP BY generation
-ORDER BY avg_suicides desc;
+ORDER BY percent_suicides_per_generation desc;
+
+
+
+
 
 
 
