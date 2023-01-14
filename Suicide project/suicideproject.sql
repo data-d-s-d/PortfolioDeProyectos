@@ -20,8 +20,7 @@ FROM suicide_project.suicide_stats;
 SELECT sex, 
        SUM(suicides_no) total_suicides_per_gender, 
        (SELECT SUM(suicides_no) FROM suicide_project.suicide_stats) total_suicides,
-       ROUND((SELECT SUM(suicides_no)/total_suicides*100 HAVING sex = 'male' OR sex = 'female'), 2) percent_suicides
-       							
+       ROUND((SELECT SUM(suicides_no)/total_suicides*100 HAVING sex = 'male' OR sex = 'female'), 2) percent_suicides       							
 FROM suicide_project.suicide_stats
 GROUP BY sex;
 
@@ -32,6 +31,15 @@ FROM suicide_project.suicide_stats
 GROUP BY country_name
 ORDER BY total_suicides_per_country desc;
 
+-- What about the percentage of suicides per country?.
+SELECT suicide_stats.country_name,
+       SUM(suicide_stats.suicides_no) total_suicides_per_country,
+       population.avg avg_population,  
+       SUM(suicide_stats.suicides_no)/population.avg as avg_suicides_per_country
+FROM suicide_project.suicide_stats
+JOIN population ON suicide_stats.country_name = population.country_name
+GROUP BY country_name
+ORDER BY avg_suicides_per_country desc;
 
 
 -- I would now like to know the age-range with in which suicide is most common.
@@ -75,18 +83,8 @@ ORDER BY total_suicides_per_year desc;
 SELECT *
 FROM suicide_project.population;
 
--- Average suicides per country.
-SELECT suicide_stats.country_name,
-       SUM(suicide_stats.suicides_no) total_suicides_per_country,
-       population.avg avg_population,  
-       SUM(suicide_stats.suicides_no)/population.avg as avg_suicides_per_country
-FROM suicide_project.suicide_stats
-JOIN population ON suicide_stats.country_name = population.country_name
-GROUP BY country_name
-ORDER BY avg_suicides_per_country desc;
 
-
--- Age group with the most avg suicides.
+-- Age group with the most % of suicides.
 SELECT age,
 	   SUM(suicides_no) total_suicides_per_age_range,
        SUM(population),
@@ -96,7 +94,7 @@ GROUP BY age
 ORDER BY percent_suicides_per_age_range desc;
 
 
--- Generation with the most avg suicides. G.I. Generation (1901-1927)
+-- Generation with the most % suicides. G.I. Generation (1901-1927)
 SELECT generation,
 	   SUM(suicides_no) total_suicides_per_generation,
        SUM(population),
