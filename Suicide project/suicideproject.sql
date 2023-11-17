@@ -4,7 +4,7 @@
 
 SELECT *
 FROM suicide_project.suicide_stats
-group by age
+GROUP BY country_name
 ;
 
 -- First I need to change the name of some columns
@@ -31,58 +31,27 @@ FROM suicide_project.suicide_stats
 GROUP BY country_name
 ORDER BY total_suicides_per_country desc;
 
+-- I used another population dataset to make the data easier to manipulate.
+SELECT *
+FROM suicide_project.population;
+
 -- What about the percentage of suicides per country?.
 SELECT suicide_stats.country_name,
        SUM(suicide_stats.suicides_no) total_suicides_per_country,
        population.avg avg_population,  
-       SUM(suicide_stats.suicides_no)/population.avg as avg_suicides_per_country
+       ROUND(SUM(suicide_stats.suicides_no)/population.avg, 5) as avg_suicides_per_country
 FROM suicide_project.suicide_stats
 JOIN population ON suicide_stats.country_name = population.country_name
 GROUP BY country_name
 ORDER BY avg_suicides_per_country desc;
 
 
--- I would now like to know the age-range with in which suicide is most common.
+-- I would now like to know the age-group in which suicide is most common.
 SELECT age, 
        SUM(suicides_no) total_suicides_per_age_range
 FROM suicide_project.suicide_stats
 GROUP BY age
 ORDER BY total_suicides_per_age_range desc;
-
--- Now let's see the years in which the most suicides where commited.
-SELECT  year,
-		SUM(suicides_no) total_suicides_per_year
-FROM suicide_project.suicide_stats
-GROUP BY year
-ORDER BY total_suicides_per_year desc;
-
--- Let's see what generations show the highest counts of suicides.
-SELECT generation,
-	   SUM(suicides_no) total_suicides_per_generation 
-FROM suicide_project.suicide_stats
-GROUP BY generation
-ORDER BY total_suicides_per_generation desc;
-
--- One of the elements that I found really interesting of this dataset is the economic factor. Let's dig a little into that.
-SELECT country_name,
-	   SUM(suicides_no) total_suicides_per_country,
-       AVG(gdp_per_capita)
-FROM suicide_project.suicide_stats
-GROUP BY country_name
-ORDER BY total_suicides_per_country desc;
-
--- Years in which the most suicides where commited in Argentina. 
-SELECT year,	   
-	   SUM(suicides_no) total_suicides_per_year       
-FROM suicide_project.suicide_stats
-WHERE country_name = 'Argentina'
-GROUP BY year
-ORDER BY total_suicides_per_year desc;
-
--- Interesting... but let's join with the population table.
-SELECT *
-FROM suicide_project.population;
-
 
 -- Age group with the most % of suicides.
 SELECT age,
@@ -93,6 +62,27 @@ FROM suicide_project.suicide_stats
 GROUP BY age
 ORDER BY percent_suicides_per_age_range desc;
 
+-- Now let's see the years in which the most suicides where commited.
+SELECT  year,
+		SUM(suicides_no) total_suicides_per_year
+FROM suicide_project.suicide_stats
+GROUP BY year
+ORDER BY total_suicides_per_year desc;
+
+-- Years in which the most suicides where commited in Argentina. 
+SELECT year,	   
+	   SUM(suicides_no) total_suicides_per_year       
+FROM suicide_project.suicide_stats
+WHERE country_name = 'Argentina'
+GROUP BY year
+ORDER BY total_suicides_per_year desc;
+
+-- Let's see what generations show the highest counts of suicides.
+SELECT generation,
+	   SUM(suicides_no) total_suicides_per_generation 
+FROM suicide_project.suicide_stats
+GROUP BY generation
+ORDER BY total_suicides_per_generation desc;
 
 -- Generation with the most % suicides. G.I. Generation (1901-1927)
 SELECT generation,
@@ -102,6 +92,25 @@ SELECT generation,
 FROM suicide_project.suicide_stats
 GROUP BY generation
 ORDER BY percent_suicides_per_generation desc;
+
+
+-- One of the elements that I found really interesting of this dataset is the economic factor. Let's dig a little into that.
+SELECT country_name,
+	   SUM(suicide_stats.suicides_no)/SUM(population) *100 percentage_suicides_per_country,
+       ROUND(AVG(gdp_per_capita), 2) as average_gdp_per_capita
+FROM suicide_project.suicide_stats
+GROUP BY country_name
+ORDER BY percentage_suicides_per_country desc;
+
+SELECT * 
+FROM suicide_project.suicide_stats
+WHERE country_name = 'China'
+
+
+
+
+
+
 
 
 

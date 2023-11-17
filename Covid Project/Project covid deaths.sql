@@ -1,12 +1,14 @@
 SELECT * 
 FROM projectalex.muertes_por_covid
 WHERE continent is NOT NULL
-ORDER BY location;
+GROUP BY location
+ORDER BY location
+;
 
 update muertes_por_covid set continent=if(continent='   ',NULL,continent);
 
 -- income
-SELECT Location, population, sum(new_cases), sum(new_deaths)
+SELECT Location, population, sum(new_cases) as Total_Cases, sum(new_deaths) as Total_Deaths
 FROM projectalex.muertes_por_covid
 -- WHERE continent is NOT NULL
 WHERE Location like "%income"
@@ -16,7 +18,7 @@ ORDER BY location;
 -- SELECCION UBICACION, FECHA, CASOS TOTALES, CASOS NUEVOS, MUERTES Y POBLACION
 SELECT Location, date, total_cases, new_cases, total_Deaths, population
 FROM projectalex.muertes_por_covid
-WHERE continent is not null
+WHERE Location = 'Argentina'
 ORDER BY 1,2;
 
 -- DIAS CON MAS CONTAGIOS EN EL MUNDO

@@ -242,7 +242,7 @@ from forestarea.covered_area
 GROUP BY `Country Name`
 ;
 
--- How many countries had more forest in 1990 than in 2020
+-- How many countries had more area of forests in 1990 than in 2020
 select `Country Name` 
 from forestarea.covered_area
 WHERE `Forest Area 1990` > `Forest Area 2020`
@@ -303,34 +303,66 @@ LIMIT 20;
 
 -- Now let's check the global temperature data
 select * 
-from globaltemp1;
+from forestarea.globaltemp1;
+
+-- Changing name of USA to join tables
+UPDATE forestarea.globaltemp1
+SET 
+`Country Name` = "United States"
+WHERE `Country Name` = "United States of America"
+;
+
 
 -- The "Value" column is the temperature change with respect to a baseline climatology, corresponding to the period 1951–1980
-SELECT Area, Months, Year, Value 
-FROM globaltemp1
-ORDER BY Area, Year;
+SELECT `Country Name`, Months, Year, Value 
+FROM forestarea.globaltemp1
+ORDER BY `Country Name`, Year;
 
 -- Temperature change by location and year
-SELECT Area, Value, Months, year 
-FROM globaltemp1
+SELECT `Country Name`, Value, Months, year 
+FROM forestarea.globaltemp1
 WHERE Months = 'Meteorological year'
-ORDER BY Area, Year;
+ORDER BY `Country Name`, Year;
 
 -- Average (1961-2020) temperature rise compared to baseline climatology. Ordered by temperature difference.
-SELECT Area, AVG(Value) as Average_temperature_diff 
-FROM globaltemp1
+SELECT `Country Name`, AVG(Value) as Average_temperature_diff 
+FROM forestarea.globaltemp1
 WHERE Months = 'Meteorological year'
-GROUP BY Area
+GROUP BY `Country Name`
 ORDER BY Average_temperature_diff desc;
 
--- Average (1961-2021) temperature change in Argentina compared to baselie climatology
-SELECT Area, avg(Value) as Avg_local_temperature_diff
-FROM globaltemp1
-WHERE Area = 'Argentina' AND Months = 'Meteorological Year';
+-- Average (1961-2021) temperature change in Argentina compared to baseline climatology
+SELECT `Country Name`, avg(Value) as Avg_local_temperature_diff
+FROM forestarea.globaltemp1
+WHERE `Country Name` = 'Argentina' AND Months = 'Meteorological Year';
 
-SELECT avg(Value)
-FROM globaltemp1
-WHERE Months = 'Meteorological year'
+-- Global Average Temperature difference
+SELECT avg(Value) as Global_Avg_diff
+FROM forestarea.globaltemp1
+WHERE Months = 'Meteorological year';
 -- ORDER BY Area, Year;
+
+-- Changing column name from "Area" to "Country name" to be able to join tables
+ALTER TABLE globaltemp1 
+RENAME COLUMN Area TO `Country Name`;
+
+-- Join tables on Country Name
+SELECT forestarea.`Country Name`,
+	   globaltemp.value, 
+	   globaltemp.year, 
+	   forestarea.Continent
+ 
+FROM forestarea.covered_area forestarea
+
+INNER JOIN forestarea.globaltemp1 globaltemp
+	ON forestarea.`Country Name` = globaltemp.`Country Name`
+WHERE globaltemp.year >= 1990 AND globaltemp.Months = "Meteorological year"
+;
+
+SELECT globaltemp.value
+WHERE globaltemp.year = 2020 AND globaltemp.Months = "Meteorological year"
+FROM forestarea.covered_area forestarea
+;
+
 
 
